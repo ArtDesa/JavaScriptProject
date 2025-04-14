@@ -85,7 +85,12 @@ app.get('/', (req,res)=>{
     })
 })
 app.get('/sports',(req,response)=>
-{
+{   /*This API is part of NewsAPI, a service that provides access to worldwide news articles and headlines.
+      This one in specific is to fetch top sports headlines from the United States.
+      The API returns JSON-formatted news articles from various sources.
+      NewsAPI offers a free plan, but you must sign up and create an account to use NewsAPI.
+      Without an account, the API provided won’t work because the apiKey needs to be associated with a registered account.
+      → Visit newsapi.org to create an account and get a key. */
     const apiUrl = 'https://newsapi.org/v2/top-headlines?country=us&category=sports&apiKey=884aeb5b9df34b4080592935e05a5417'
     //include the todays_date in ISO format
     axios.get(apiUrl)
