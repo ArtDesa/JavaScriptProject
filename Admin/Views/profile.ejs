@@ -1,8 +1,50 @@
+<style>
+    .centered {
+        /*text-align: center;*/
+        margin: 0 auto;  
+        display: block;
+        width: 50%;
+    }
+</style>
+
 <a  href="/logout">Logout</a>
-<center>
+<div class="centered">
     <h1>Profile page</h1>
-</center>
+</div>
 <hr/>
-<center>
+<div class="centered">
     <h2>Hi <%=User_Name%></h2> Your Email Id is <%=User_Email%>
-</center>
+</div>
+
+<!-- The <center> tag is likely highlighted in red because it is deprecated in HTML5. 
+    Modern web development encourages using CSS for styling instead of outdated HTML tags.
+    
+    Intead of <center>, change it to CSS and use something like:
+        <style>
+            .centered {
+                text-align: center;
+            }
+        </style>
+
+        <a href="/logout">Logout</a>
+
+        <div class="centered">
+            <h1>Profile page</h1>
+        </div>
+
+        <hr/>
+
+        <div class="centered">
+            <h2>Hi < %=User_Name%></h2> Your Email Id is < %=User_Email%>
+        </div>
+
+    In CSS:
+    For the text inside the Divs:
+    text-align: center;
+
+    or for the Divs themselves:
+    margin: 0 auto;  /* Centers the div */
+    display: block;
+    width: 50%;
+    
+    -->

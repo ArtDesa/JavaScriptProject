@@ -14,7 +14,7 @@ const publicIp = require('public-ip')
 //execute the call back functions 
 require('./database')
 //The NewList//ContactUSList
- let NewsModel = require('./Models/News_model')
+ let NewsModel = require('./Models/News_Model')
 let  ContactusModel = require('./Models/Contact_Model')
 const app = express()
 //Set the enviroment port

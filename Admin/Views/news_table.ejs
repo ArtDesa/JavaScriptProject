@@ -4,6 +4,14 @@
     <title>Media Admin</title>
 
     <%-include('./Partials/header.ejs')%>
+    <style>
+        .centered {
+            /*text-align: center;*/
+            margin: 0 auto;  
+            display: block;
+            width: 50%;
+        }
+    </style>
 </head>
 
 <body>
@@ -17,10 +25,10 @@
             <div class="col-md-12">
                 <div class="panel">
                     <div class="panel-body">
-                        <center>
+                        <div class="centered">
                             <h5></h5>
                             <h5>News List</h5>
-                        </center>
+                        </div>
 
                         <div class="table-responsive">
                             <table class="table table-hover table-striped" id="myTable">
