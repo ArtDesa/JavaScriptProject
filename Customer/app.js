@@ -11,18 +11,25 @@ import "regenerator-runtime/runtime";
 import mongoose from 'mongoose'
 const iplocate = require("node-iplocate")
 const publicIp = require('public-ip')
+
+// NEW API KEY FROM NEWSAPI.ORG: 8083f0d49d034a579c04a12c80c1411a
+
 //execute the call back functions 
 require('./database')
+
 //The NewList//ContactUSList
- let NewsModel = require('./Models/News_Model')
+let NewsModel = require('./Models/News_Model')
 let  ContactusModel = require('./Models/Contact_Model')
+//Creates the Express.js application.
 const app = express()
+
 //Set the enviroment port
 app.set('port', process.env.PORT || 7080);
 app.use(express.static(path.join(__dirname, 'Public')));
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(bodyParser.json())
 app.use(cors())
+
 //Srt the view engine and find where the 
 app.set('view engine', 'ejs')
 app.set('views', './Views')
@@ -39,19 +46,28 @@ const getUserLoc = async ()=>{
         console.log(err);
     }
 }
+
 //Function to get the get the weather user data
 const getWeatherData = async (Lon, Lat) =>{
-    //nEED THE API KEY(PLEASE RESOLVE)
-    const key = "371e3350e42ff3618e3c67c091326f57";
+    //source: https://openweathermap.org/current
+    //PROVIDE THE API KEY HERE
+    //New API key: b7bfe353452bd20e99c634fb3d0e3b1e
+    const key = "b7bfe353452bd20e99c634fb3d0e3b1e";
+    //PROVIDE THE API LINK HERE
     const Url = `http://api.openweathermap.org/data/2.5/weather?lon=${Lon}&lat=${Lat}&appid=${key}&units=metric`
     console.log("getWeather : apiUrl : ", Url)
     try{
-        //use axios to connect said api
+        //use axios to connect said api. Install axion with npm b4 using app.
+        /*Axios makes HTTP requests shorter and cleaner instead of using fetch() function. 
+          Axios automatically converts responses to JSON. Axios catches errors more effectively and provides cleaner response objects. and other things.*/
         return await axios.get(Url)
     }catch(err){
         console.log(err)
     }
 }
+
+// Handles GET request for root directory.
+/* Sets up a route handler for the root URL */
 app.get('/', (req,res)=>{
 
     getUserLoc().then((loc)=>{  
@@ -71,7 +87,13 @@ app.get('/', (req,res)=>{
             
             
             NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
-                console.log(err)
+                
+                if (err) {
+                    console.error("Error fetching news data:", err);
+                } else {
+                    console.log("Fetched news data:", data);  // Debugging output
+                }
+                //console.log(err)
                 const news = data
                 //console.log("news : ", news)
                 
@@ -84,14 +106,18 @@ app.get('/', (req,res)=>{
         })
     })
 })
+
+// Handles GET request for the /sports page
+/* Sets up a route handler for the /sports page */
 app.get('/sports',(req,response)=>
 {   /*This API is part of NewsAPI, a service that provides access to worldwide news articles and headlines.
       This one in specific is to fetch top sports headlines from the United States.
       The API returns JSON-formatted news articles from various sources.
       NewsAPI offers a free plan, but you must sign up and create an account to use NewsAPI.
       Without an account, the API provided won’t work because the apiKey needs to be associated with a registered account.
-      → Visit newsapi.org to create an account and get a key. */
-    const apiUrl = 'https://newsapi.org/v2/top-headlines?country=us&category=sports&apiKey=884aeb5b9df34b4080592935e05a5417'
+      → Visit newsapi.org to create an account and get a key. 
+      New API key: 8083f0d49d034a579c04a12c80c1411a*/
+    const apiUrl = 'https://newsapi.org/v2/top-headlines?country=us&category=sports&apiKey=8083f0d49d034a579c04a12c80c1411a'
     //include the todays_date in ISO format
     axios.get(apiUrl)
     .then((res) =>
@@ -106,15 +132,21 @@ app.get('/sports',(req,response)=>
     })
     // res.render('Sports.ejs',{title:"test my title"});
 })
+
+//GET route handler for the /about_us page
 app.get('/about_us', (req,res)=>{
     res.render('about_us.ejs')
 })
+
+//GET route handler for the /contact_us page
 app.get('/contact_us', (req,res)=>{
     
     res.render('contact_us.ejs', {
         msg: req.query.msg?req.query.msg:''
     })
 })
+
+//POST route handler for the /addContactUs page
 app.post('/addContactUs', (req,res)=>{
     console.log("/addContactUs : req.body : ", req.body)
     
@@ -175,30 +207,60 @@ app.post('/addContactUs', (req,res)=>{
 app.use(express.static(path.join(__dirname,'chat')))
 //Create the server for the chat rooms 
 
+//Creating a server using the Express.js application instance for the use of Chat rooms
+
+
 let server = http.createServer(app).listen(app.get('port'),()=>{
     console.log("Creating the server chat rooms " + app.get('port'));
 })
 
+//Sets up to handle real-time communication between users on a server.
+//Creates a WebSocket connection using Socket.io
+//sockets -> communication endpoints that allow data to be exchanged between different systems, such as between a client (browser) and a server. They enable real-time communication.
+
+
 let io = socketIO(server)
 
-io.sockets.on('connection',(socket)=>{
+//Listens for new users connecting to the WebSocket.
+//'socket' -> represents a unique connection for each user.
+/*(socket)=>{} -> The second argument is for callback function that is expected.
+  Give the parameter a name to refer to it and then define the callback function. */ 
 
+  io.sockets.on('connection', (socket)=>{
 
+    /*Each socket.on() call below listens for a different event the client might trigger.
+    The 'connection' event creates a communication channel between the server and that specific client (socket) */
+
+    /* Listens for disconnect event, removes the disconnected user from the users array. 
+    Broadcasts the updated user list to all other users */
+    
     socket.on('disconnect',()=>{
         const updateUsers = users.filter(user=> user != socket.nick)
         users = updateUsers
-        socket.emit('userlist',users)
+        socket.emit('userlist', users)
     })
 
-    let list =socket.client.conn.server.clients
-    let users=Object.keys(list)
+    //Retrieves a list of all connected users
+    
+    let list = socket.client.conn.server.clients
+    let users = Object.keys(list)
 
     //emitting events with labels 
+    /* Listends for the 'nick' event
+    Server stores their nickname and updates the user list. 
+    The updated list is sent back to all users.
+    (Sends the updated user list to the client) */
+    
     socket.on('nick',(nickname)=>{
         socket.nickname=nickname
         users.push(nickname)
         socket.emit('userlist',users)
     })
+    
+    /* Handling Chat Messages 
+    Listens for chat messages
+    Formats messages with a timestamp. 
+    Sends the message to the sender and to all users via socket.broadcast.emit() */
     
     socket.on('chat',(data)=>{
         const d = new Date()
@@ -207,6 +269,7 @@ io.sockets.on('connection',(socket)=>{
         socket.emit('chat', response)
         socket.broadcast.emit('chat',response)
     })
+
 })
 
 
