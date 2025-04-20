@@ -64,7 +64,7 @@ const getWeatherData = async (Lon, Lat) =>{
         //use axios to connect said api. Install axion with npm b4 using app.
         /*Axios makes HTTP requests shorter and cleaner instead of using fetch() function. 
           Axios automatically converts responses to JSON. Axios catches errors more effectively and provides cleaner response objects. and other things.*/
-        return await axios.get(Url)
+        return axios.get(Url)
     }catch(err){
         console.log(err)
     }
@@ -180,7 +180,7 @@ const getWSJData = async () =>{
 
 // Handles GET request for root directory.
 /* Sets up a route handler for the root URL */
-app.get('/', (req,res)=>{
+app.get('/', async (req,res)=>{
     //Gets user lon and lat based off of IP to determine weather after getUserLoc() resolves.
     //loc -> result of getUserLoc()
     
@@ -195,7 +195,10 @@ app.get('/', (req,res)=>{
                     wsjNews
                 } */
     
-    const weather = getWeatherForUser
+    const weather = await getWeatherForUser()
+    console.log("This is weather value: ", weather)
+
+
 
 
     NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
