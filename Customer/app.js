@@ -12,7 +12,11 @@ import mongoose from 'mongoose'
 const iplocate = require("node-iplocate")
 const publicIp = require('public-ip')
 
-// NEW API KEY FROM NEWSAPI.ORG: 8083f0d49d034a579c04a12c80c1411a
+// NEWS API KEY FROM NEWSAPI.ORG: 8083f0d49d034a579c04a12c80c1411a
+//URL for business headlines: https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=8083f0d49d034a579c04a12c80c1411a
+//URL for TechCrunch https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=8083f0d49d034a579c04a12c80c1411a
+//URL for Wall Street Journal (last 6 months): https://newsapi.org/v2/everything?domains=wsj.com&apiKey=8083f0d49d034a579c04a12c80c1411a
+
 
 //execute the call back functions 
 require('./database')
@@ -47,7 +51,7 @@ const getUserLoc = async ()=>{
     }
 }
 
-//Function to get the get the weather user data
+//WEATHER - Function to get the get the weather user data
 const getWeatherData = async (Lon, Lat) =>{
     //source: https://openweathermap.org/current
     //PROVIDE THE API KEY HERE
@@ -66,26 +70,132 @@ const getWeatherData = async (Lon, Lat) =>{
     }
 }
 
+/* Business News */
+const getBusinessData = async () =>{
+    //source: https://newsapi.org
+    //PROVIDE THE API KEY HERE
+    //New API key: 8083f0d49d034a579c04a12c80c1411a
+    const key = "8083f0d49d034a579c04a12c80c1411a";
+    //PROVIDE THE API LINK HERE
+    const Url = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=8083f0d49d034a579c04a12c80c1411a`
+    console.log("getBusinessData : apiUrl : ", Url)
+    
+    try{
+        //use axios to connect said api. Install axion with npm b4 using app.
+        /*Axios makes HTTP requests shorter and cleaner instead of using fetch() function. 
+          Axios automatically converts responses to JSON. Axios catches errors more effectively and provides cleaner response objects. and other things.*/
+          return await axios.get(Url)
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+/* TechCrunch */
+const getTechData = async () =>{
+    //source: https://newsapi.org
+    //PROVIDE THE API KEY HERE
+    //New API key: 8083f0d49d034a579c04a12c80c1411a
+    const key = "8083f0d49d034a579c04a12c80c1411a";
+    //PROVIDE THE API LINK HERE
+    const Url = `https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=8083f0d49d034a579c04a12c80c1411a`
+    console.log("getTechData : apiUrl : ", Url)
+    try{
+        //use axios to connect said api. Install axion with npm b4 using app.
+        /*Axios makes HTTP requests shorter and cleaner instead of using fetch() function. 
+          Axios automatically converts responses to JSON. Axios catches errors more effectively and provides cleaner response objects. and other things.*/
+          return await axios.get(Url)
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+/* Wall Street Journal */
+const getWSJData = async () =>{
+    //source: https://newsapi.org
+    //PROVIDE THE API KEY HERE
+    //New API key: 8083f0d49d034a579c04a12c80c1411a
+    const key = "8083f0d49d034a579c04a12c80c1411a";
+    //PROVIDE THE API LINK HERE
+    const Url = `https://newsapi.org/v2/everything?domains=wsj.com&apiKey=8083f0d49d034a579c04a12c80c1411a`
+    console.log("getWSJData : apiUrl : ", Url)
+    try{
+        //use axios to connect said api. Install axion with npm b4 using app.
+        /*Axios makes HTTP requests shorter and cleaner instead of using fetch() function. 
+          Axios automatically converts responses to JSON. Axios catches errors more effectively and provides cleaner response objects. and other things.*/
+          return await axios.get(Url)
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+
 // Handles GET request for root directory.
 /* Sets up a route handler for the root URL */
 app.get('/', (req,res)=>{
-
+    //Gets user lon and lat based off of IP to determine weather after getUserLoc() resolves.
+    //loc -> result of getUserLoc()
     getUserLoc().then((loc)=>{  
         const Lon = loc.longitude
         const Lat = loc.latitude
         console.log(Lon  + " " + Lat)
-        //Get the weather  data as well 
-        getWeatherData(Lon,Lat).then((response)=>{
+        //Get the weather data using getWeatherData(). response -> result of getWeatherData(Lon,Lat)
+        getWeatherData(Lon,Lat).then((weatherResponse)=>{
             const weather = {
-                Description: response.data.weather[0].main ,
-                Icon: "http://openweathermap.org/img/wn/" + response.data.weather[0].icon + ".png",
-                Temperature: response.data.main.temp,
-                Temp_min: response.data.main.temp_min,
-                Temp_max: response.data.main.temp_max,
-                City: response.data.name
+                Description: weatherResponse.data.weather[0].main ,
+                Icon: "http://openweathermap.org/img/wn/" + weatherResponse.data.weather[0].icon + ".png",
+                Temperature: weatherResponse.data.main.temp,
+                Temp_min: weatherResponse.data.main.temp_min,
+                Temp_max: weatherResponse.data.main.temp_max,
+                City: weatherResponse.data.name
             }
             
+            /* Insert data from NewsAPI.org call for Business, TechCrunch, Wall Street Journal */
             
+            /*const allBusinessNews = getBusinessData().then(businessResponse)
+            const businessNews = allBusinessNews[0]
+            */
+
+
+
+            /*
+            //Business news from NewsAPI.org
+            const busUrl = 'https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=8083f0d49d034a579c04a12c80c1411a'
+            axios.get(busUrl).then((businessResponse) =>
+            {
+                //Retrieve the most recent article from the articles array
+                const businessNews = businessResponse.data.articles[0];
+
+            }).catch(function(busErr){
+                console.log("Error - could not retrieve business news: ", busErr);
+            })
+            
+            //TechCrunch news from NewsAPI.org
+            const techUrl = 'https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=8083f0d49d034a579c04a12c80c1411a'
+            axios.get(techUrl).then((techResponse) =>
+            {
+                //Retrieve the most recent article from the articles array
+                const techNews = techResponse.data.articles[0];
+
+            }).catch(function(techErr){
+                console.log("Error - could not retrieve tech news: ", techErr);
+            })
+            
+            //Wall Street Journal news from NewsAPI.org
+            const wsjUrl = 'https://newsapi.org/v2/everything?domains=wsj.com&apiKey=8083f0d49d034a579c04a12c80c1411a'
+            axios.get(wsjUrl).then((wsjResponse) =>
+            {
+                //Retrieve the most recent article from the articles array
+                const wsjNews = wsjResponse.data.articles[0];
+
+            }).catch(function(wsjErr){
+                console.log("Error - could not retrieve Wall Street Journal news: ", wsjErr);
+            })
+            */
+
+            //Adds NewsModel collection from database 
             NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
                 
                 if (err) {
@@ -99,7 +209,11 @@ app.get('/', (req,res)=>{
                 
                 res.render('home', {
                     weather,
-                    news
+                    news,
+                    //businessNews,
+                    //techNews,
+                    //wsjNews
+
                 })
             })
     
@@ -107,6 +221,7 @@ app.get('/', (req,res)=>{
     })
 })
 
+//SPORTS - from NewsAPI.org 
 // Handles GET request for the /sports page
 /* Sets up a route handler for the /sports page */
 app.get('/sports',(req,response)=>

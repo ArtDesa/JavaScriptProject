@@ -198,9 +198,15 @@
                         <li data-target="imgCarousel" data-slide-to="2"></li>
                     </ol>
                     <!-- Carousel of imgs, (label included) -->
+                     <!-- *Note: news[0], news[1], etc will FAIL if Admin has not provided 3 news entries so the below can pull from the database -->
                     <div class="carousel-inner ">
                         <div class="carousel-item active" data-interval="1000">
                             <div class="container">
+                                <!-- < % if (news[0].News_urlToImage) { %>
+                                            <img class='img-fluid mw-100 mh-100' src="< %= news[0].News_urlToImage %>">
+                                    < % } else { %>
+                                            <img class='img-fluid mw-100 mh-100' src="/images/fallback-image.jpg">
+                                    < % } %> -->
                                 <img class='img-fluid mw-100 mh-100' src=<%=news[0].News_urlToImage%>>
                                 <div class="carousel-caption d-none d-md-block">
                                     <h5>Financial news</h5>

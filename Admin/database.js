@@ -27,8 +27,8 @@ mongod by default tries to find the /data folder at C:\data\db.
 To use the mongod.config file to specify where to find the data folder, run the command: mongod --config "C:\Program Files\MongoDB\Server\8.0\mongod.cfg"
 Instead of running that long command every single time, I've created a .bat (batch) file in the \bin directory with the above command:
 echo mongod --config "C:\Program Files\MongoDB\Server\8.0\mongod.cfg" > "C:\Program Files\MongoDB\Server\8.0\bin\mongod.bat"
-With the Path "C:\Program Files\MongoDB\Server\8.0\bin in Environment Variables, 
-Now when I run mongod in terminal it will prioritize mongod.bat over mongod.exe and run the long command with --config as shown above. 
+Added the Path "C:\Program Files\MongoDB\Server\8.0\bin to Environment Variables, 
+Now I can just run mongod.bat in terminal without having to run the long command with --config as shown above. 
 
 Check if MongoDB is running:
 tasklist | findstr mongod
