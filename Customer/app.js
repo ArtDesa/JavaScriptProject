@@ -70,6 +70,52 @@ const getWeatherData = async (Lon, Lat) =>{
     }
 }
 
+
+//  WEATHER - Function that returns the weather data for Log and LAT of user
+const getWeatherForUser = async () => {
+    try {
+        const loc = await getUserLoc();
+        const Lon = loc.longitude;
+        const Lat = loc.latitude;
+
+        const weatherResponse = await getWeatherData(Lon, Lat);
+        const weather = {
+            Description: weatherResponse.data.weather[0].main,
+            Icon: `http://openweathermap.org/img/wn/${weatherResponse.data.weather[0].icon}.png`,
+            Temperature: weatherResponse.data.main.temp,
+            Temp_min: weatherResponse.data.main.temp_min,
+            Temp_max: weatherResponse.data.main.temp_max,
+            City: weatherResponse.data.name
+        };
+
+        return weather; //returns the weather data
+
+    } catch (error) {
+        console.error("Error fetching weather:", error);
+        return null; // Returns null in case of failure
+    }
+};
+
+/*
+    getUserLoc().then((loc)=>{  
+            const Lon = loc.longitude
+            const Lat = loc.latitude
+            console.log(Lon  + " " + Lat)
+            
+            //Get the weather data using getWeatherData(). response -> result of getWeatherData(Lon,Lat)
+            getWeatherData(Lon,Lat).then((weatherResponse)=>{
+                const weather = {
+                    Description: weatherResponse.data.weather[0].main ,
+                    Icon: "http://openweathermap.org/img/wn/" + weatherResponse.data.weather[0].icon + ".png",
+                    Temperature: weatherResponse.data.main.temp,
+                    Temp_min: weatherResponse.data.main.temp_min,
+                    Temp_max: weatherResponse.data.main.temp_max,
+                    City: weatherResponse.data.name
+                }
+
+*/
+
+
 /* Business News */
 const getBusinessData = async () =>{
     //source: https://newsapi.org
@@ -137,12 +183,50 @@ const getWSJData = async () =>{
 app.get('/', (req,res)=>{
     //Gets user lon and lat based off of IP to determine weather after getUserLoc() resolves.
     //loc -> result of getUserLoc()
+    
+    /* ATTEMPT TO PLACE getUserLoc() AND getWeatherData(Lon,Lat).then((weatherResponse)=>{} BELOW INTO OWN FUNCTION
+    HAVE THAT FUNCTION RETURN WEATHER CALL IT HERE TO ASSIGN TO const weather 
+    THAT WAY I CAN HAVE ALL 4 APIs UNDER 
+    res.render('home', {
+                    weather,
+                    news,
+                    businessNews,
+                    techNews,
+                    wsjNews
+                } */
+    
+    const weather = getWeatherForUser
+
+
+    NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
+                
+        if (err) {
+            console.error("Error fetching news data:", err);
+        } else {
+            console.log("Fetched news data:", data);  // Debugging output
+        }
+        //console.log(err)
+        const news = data
+        //console.log("news : ", news)
+        
+        res.render('home', {
+            weather,
+            news,
+            //businessNews,
+            //techNews,
+            //wsjNews
+
+        })
+    })
+
+    //--------------------------------------------------------------------------------------------------
+    /*
     getUserLoc().then((loc)=>{  
         const Lon = loc.longitude
         const Lat = loc.latitude
-        console.log(Lon  + " " + Lat)
+        console.log(Lon  + " " + Lat)*/
         //Get the weather data using getWeatherData(). response -> result of getWeatherData(Lon,Lat)
-        getWeatherData(Lon,Lat).then((weatherResponse)=>{
+        /*getWeatherData(Lon,Lat).then((weatherResponse)=>{
             const weather = {
                 Description: weatherResponse.data.weather[0].main ,
                 Icon: "http://openweathermap.org/img/wn/" + weatherResponse.data.weather[0].icon + ".png",
@@ -150,8 +234,12 @@ app.get('/', (req,res)=>{
                 Temp_min: weatherResponse.data.main.temp_min,
                 Temp_max: weatherResponse.data.main.temp_max,
                 City: weatherResponse.data.name
-            }
+            }*/
             
+    
+
+
+
             /* Insert data from NewsAPI.org call for Business, TechCrunch, Wall Street Journal */
             
             /*const allBusinessNews = getBusinessData().then(businessResponse)
@@ -196,7 +284,8 @@ app.get('/', (req,res)=>{
             */
 
             //Adds NewsModel collection from database 
-            NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
+            
+            /*NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
                 
                 if (err) {
                     console.error("Error fetching news data:", err);
@@ -215,10 +304,11 @@ app.get('/', (req,res)=>{
                     //wsjNews
 
                 })
-            })
-    
-        })
-    })
+            })*/
+            //////////////////////////////////////////////////////////////////////////////////////////////
+        /*})*/
+    /*})*/
+    //-----------------------------------------------------------------------------------------------------
 })
 
 //SPORTS - from NewsAPI.org 
