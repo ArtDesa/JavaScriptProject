@@ -45,7 +45,7 @@ const getUserLoc = async ()=>{
         const ip = await publicIp.v4()
         const response =  await iplocate(ip);
         console.log(response);
-        return   response;
+        return response;
     }catch(err){
         console.log(err);
     }
@@ -71,7 +71,7 @@ const getWeatherData = async (Lon, Lat) =>{
 }
 
 
-//  WEATHER - Function that returns the weather data for Log and LAT of user
+//  WEATHER - Function that returns the weather data based using getUserLoc and getWeatherData
 const getWeatherForUser = async () => {
     try {
         const loc = await getUserLoc();
@@ -96,26 +96,6 @@ const getWeatherForUser = async () => {
     }
 };
 
-/*
-    getUserLoc().then((loc)=>{  
-            const Lon = loc.longitude
-            const Lat = loc.latitude
-            console.log(Lon  + " " + Lat)
-            
-            //Get the weather data using getWeatherData(). response -> result of getWeatherData(Lon,Lat)
-            getWeatherData(Lon,Lat).then((weatherResponse)=>{
-                const weather = {
-                    Description: weatherResponse.data.weather[0].main ,
-                    Icon: "http://openweathermap.org/img/wn/" + weatherResponse.data.weather[0].icon + ".png",
-                    Temperature: weatherResponse.data.main.temp,
-                    Temp_min: weatherResponse.data.main.temp_min,
-                    Temp_max: weatherResponse.data.main.temp_max,
-                    City: weatherResponse.data.name
-                }
-
-*/
-
-
 /* Business News */
 const getBusinessData = async () =>{
     //source: https://newsapi.org
@@ -136,7 +116,6 @@ const getBusinessData = async () =>{
         }
     }
 
-
 /* TechCrunch */
 const getTechData = async () =>{
     //source: https://newsapi.org
@@ -155,7 +134,6 @@ const getTechData = async () =>{
             console.log(err)
         }
     }
-
 
 /* Wall Street Journal */
 const getWSJData = async () =>{
@@ -184,23 +162,26 @@ app.get('/', async (req,res)=>{
     //Gets user lon and lat based off of IP to determine weather after getUserLoc() resolves.
     //loc -> result of getUserLoc()
     
-    /* ATTEMPT TO PLACE getUserLoc() AND getWeatherData(Lon,Lat).then((weatherResponse)=>{} BELOW INTO OWN FUNCTION
-    HAVE THAT FUNCTION RETURN WEATHER CALL IT HERE TO ASSIGN TO const weather 
-    THAT WAY I CAN HAVE ALL 4 APIs UNDER 
-    res.render('home', {
-                    weather,
-                    news,
-                    businessNews,
-                    techNews,
-                    wsjNews
-                } */
-    
+    //weather data based on user location from ip
     const weather = await getWeatherForUser()
     console.log("This is weather value: ", weather)
 
+    //add business API
+    const businessNewsUrl = await getBusinessData();
+    const businessNews = businessNewsUrl.data.articles;
+    console.log("This is business value: ", businessNews)
 
+    //add tech news API
+    const techNewsUrl = await getTechData()
+    const techNews = techNewsUrl.data.articles;
+    console.log("This is tech value: ", techNews)
 
+    //add wsjNews API
+    const wsjNewsUrl = await getWSJData()
+    const wsjNews = wsjNewsUrl.data.articles;
+    console.log("This is WSJ value: ", wsjNews)
 
+    //News collection in MongoDB (filled by Admin)
     NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
                 
         if (err) {
@@ -215,103 +196,12 @@ app.get('/', async (req,res)=>{
         res.render('home', {
             weather,
             news,
-            //businessNews,
-            //techNews,
-            //wsjNews
+            businessNews,
+            techNews,
+            wsjNews
 
         })
     })
-
-    //--------------------------------------------------------------------------------------------------
-    /*
-    getUserLoc().then((loc)=>{  
-        const Lon = loc.longitude
-        const Lat = loc.latitude
-        console.log(Lon  + " " + Lat)*/
-        //Get the weather data using getWeatherData(). response -> result of getWeatherData(Lon,Lat)
-        /*getWeatherData(Lon,Lat).then((weatherResponse)=>{
-            const weather = {
-                Description: weatherResponse.data.weather[0].main ,
-                Icon: "http://openweathermap.org/img/wn/" + weatherResponse.data.weather[0].icon + ".png",
-                Temperature: weatherResponse.data.main.temp,
-                Temp_min: weatherResponse.data.main.temp_min,
-                Temp_max: weatherResponse.data.main.temp_max,
-                City: weatherResponse.data.name
-            }*/
-            
-    
-
-
-
-            /* Insert data from NewsAPI.org call for Business, TechCrunch, Wall Street Journal */
-            
-            /*const allBusinessNews = getBusinessData().then(businessResponse)
-            const businessNews = allBusinessNews[0]
-            */
-
-
-
-            /*
-            //Business news from NewsAPI.org
-            const busUrl = 'https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=8083f0d49d034a579c04a12c80c1411a'
-            axios.get(busUrl).then((businessResponse) =>
-            {
-                //Retrieve the most recent article from the articles array
-                const businessNews = businessResponse.data.articles[0];
-
-            }).catch(function(busErr){
-                console.log("Error - could not retrieve business news: ", busErr);
-            })
-            
-            //TechCrunch news from NewsAPI.org
-            const techUrl = 'https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=8083f0d49d034a579c04a12c80c1411a'
-            axios.get(techUrl).then((techResponse) =>
-            {
-                //Retrieve the most recent article from the articles array
-                const techNews = techResponse.data.articles[0];
-
-            }).catch(function(techErr){
-                console.log("Error - could not retrieve tech news: ", techErr);
-            })
-            
-            //Wall Street Journal news from NewsAPI.org
-            const wsjUrl = 'https://newsapi.org/v2/everything?domains=wsj.com&apiKey=8083f0d49d034a579c04a12c80c1411a'
-            axios.get(wsjUrl).then((wsjResponse) =>
-            {
-                //Retrieve the most recent article from the articles array
-                const wsjNews = wsjResponse.data.articles[0];
-
-            }).catch(function(wsjErr){
-                console.log("Error - could not retrieve Wall Street Journal news: ", wsjErr);
-            })
-            */
-
-            //Adds NewsModel collection from database 
-            
-            /*NewsModel.find({}).limit(3).sort( {"News_insertTime": -1} ).exec( (err,data)=>{
-                
-                if (err) {
-                    console.error("Error fetching news data:", err);
-                } else {
-                    console.log("Fetched news data:", data);  // Debugging output
-                }
-                //console.log(err)
-                const news = data
-                //console.log("news : ", news)
-                
-                res.render('home', {
-                    weather,
-                    news,
-                    //businessNews,
-                    //techNews,
-                    //wsjNews
-
-                })
-            })*/
-            //////////////////////////////////////////////////////////////////////////////////////////////
-        /*})*/
-    /*})*/
-    //-----------------------------------------------------------------------------------------------------
 })
 
 //SPORTS - from NewsAPI.org 
